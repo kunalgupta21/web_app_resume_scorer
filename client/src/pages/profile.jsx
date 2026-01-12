@@ -1,108 +1,122 @@
-import React, { useEffect, useState } from "react";
-import "./../resources/authentication.css";
-import { Button, Checkbox, Form, Input, message, Spin } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Button, Form, message, Spin, Tabs } from "antd";
+import Personalinfo from "../components/Personalinfo";
+import SkillsEducation from "../components/SkillsEducation";
+import ExperienceProjects from "../components/experienceProjects";
+import Certificates from "../components/Certificates";
+import Interests from "../components/Interests";
 import axios from "axios";
+import Header from "../components/Header";
 
-function Register() {
+function Profile() {
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
+  // Fetch profile when component mounts
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/user/profile",
+          { withCredentials: true }
+        );
+
+        setUserData(response.data);
+        localStorage.setItem("resume-user", JSON.stringify(response.data));
+      } catch (error) {
+        message.error("Failed to fetch profile data");
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // Submit updated profile data
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/user/register", {
-        username: values.username,
-        password: values.password,
-      });
+      await axios.post(
+        "http://localhost:5000/api/user/update",
+        values,
+        { withCredentials: true }
+      );
 
-      setLoading(false);
-      message.success("Registration successful. Please login.");
-      navigate("/login");
+      message.success("Profile updated successfully");
+      setUserData(values);
+      localStorage.setItem("resume-user", JSON.stringify(values));
     } catch (error) {
+      message.error("Profile update failed");
+      console.error("Error updating profile:", error);
+    } finally {
       setLoading(false);
-      const errorMsg =
-        error.response?.data?.message || "Registration failed";
-      message.error(errorMsg);
     }
   };
 
-  useEffect(() => {
-    if (localStorage.getItem("resume-user")) {
-      navigate("/");
-    }
-  }, [navigate]);
-
   return (
-    <div className="login-page">
-      <div className="login-box">
+    <div className="row home">
+      <Header />
+      <br />
+      <br />
+      <br />
+
+      <div className="row profile">
         {loading && <Spin size="large" />}
 
-        <Form name="register-form" onFinish={onFinish}>
-          <p className="form-title">Welcome</p>
-          <p>Kindly Register and then Login to the Dashboard</p>
+        <div className="update-profile">
+          <h2>
+            <b>Update Profile</b>
+          </h2>
+          <hr />
 
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input placeholder="Username" />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              {
-                pattern:
-                  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?]).{16,}$/,
-                message:
-                  "Password must be at least 16 characters long, include an uppercase letter, a number, and a special character",
-              },
-            ]}
-          >
-            <Input.Password placeholder="Password" />
-          </Form.Item>
-
-          <Form.Item
-            name="confirm-password"
-            dependencies={["password"]}
-            rules={[
-              { required: true, message: "Please confirm your password!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error("Passwords do not match!")
-                  );
-                },
-              }),
-            ]}
-          >
-            <Input.Password placeholder="Confirm Password" />
-          </Form.Item>
-
-          <Form.Item name="remember" valuePropName="checked">
-            <Checkbox>Remember me</Checkbox>
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="login-form-button"
-              disabled={loading}
+          {userData ? (
+            <Form
+              layout="vertical"
+              onFinish={onFinish}
+              initialValues={userData}
             >
-              Register
-            </Button>
-            <Link to="/login">Click here to Login</Link>
-          </Form.Item>
-        </Form>
+              <Tabs
+                defaultActiveKey="1"
+                items={[
+                  {
+                    label: "Personal Info",
+                    key: "1",
+                    children: <Personalinfo />,
+                  },
+                  {
+                    label: "Skills and Education",
+                    key: "2",
+                    children: <SkillsEducation />,
+                  },
+                  {
+                    label: "Experience / Projects",
+                    key: "3",
+                    children: <ExperienceProjects />,
+                  },
+                  {
+                    label: "Certificates / Courses",
+                    key: "4",
+                    children: <Certificates />,
+                  },
+                  {
+                    label: "Co-curricular / Interests",
+                    key: "5",
+                    children: <Interests />,
+                  },
+                ]}
+              />
+
+              <Button htmlType="submit" className="btnupdt">
+                UPDATE
+              </Button>
+            </Form>
+          ) : (
+            <Spin size="large" />
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-export default Register;
+export default Profile;
