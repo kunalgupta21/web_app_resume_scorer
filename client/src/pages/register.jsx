@@ -1,37 +1,28 @@
 import React, { useEffect, useState } from "react";
 import "./../resources/authentication.css";
-import { Button, Checkbox, Form, Input, message, Modal, Spin } from "antd";
+import { Button, Checkbox, Form, Input, message, Spin } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Register() {
   const [loading, setLoading] = useState(false);
-
-  // State to control MFA modal visibility
-  const [showMfaModal, setShowMfaModal] = useState(false);
-
-  // Store registered username to use later (e.g, for /enable-mfa)
-  const [registeredUsername, setRegisteredUsername] = useState("");
-
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Send the registration request to the backend (NO HASHING HERE)
       await axios.post("http://localhost:5000/api/user/register", {
         username: values.username,
-        password: values.password, // Send plaintext password (backend will hash)
+        password: values.password,
       });
 
       setLoading(false);
-      message.success("Registration successful");
-      setRegisteredUsername(values.username);
-      setShowMfaModal(true);
+      message.success("Registration successful. Please login.");
+      navigate("/login");
     } catch (error) {
       setLoading(false);
-      // Handle specific backend error messages
-      const errorMsg = error.response?.data?.message || "Registration failed";
+      const errorMsg =
+        error.response?.data?.message || "Registration failed";
       message.error(errorMsg);
     }
   };
@@ -40,17 +31,14 @@ function Register() {
     if (localStorage.getItem("resume-user")) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="login-page">
       <div className="login-box">
         {loading && <Spin size="large" />}
-        <Form
-          name="login-form"
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-        >
+
+        <Form name="register-form" onFinish={onFinish}>
           <p className="form-title">Welcome</p>
           <p>Kindly Register and then Login to the Dashboard</p>
 
@@ -86,7 +74,9 @@ function Register() {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Passwords do not match!"));
+                  return Promise.reject(
+                    new Error("Passwords do not match!")
+                  );
                 },
               }),
             ]}
@@ -110,39 +100,6 @@ function Register() {
             <Link to="/login">Click here to Login</Link>
           </Form.Item>
         </Form>
-
-        {/* MFA Prompt Modal */}
-        <Modal
-          open={showMfaModal}
-          title="Enable Two-Factor Authentication"
-          onCancel={() => navigate("/login")}
-          footer={[
-            <Button key="skip" onClick={() => navigate("/login")}>
-              ⏭️ Skip for Now
-            </Button>,
-            <Button
-              key="enable"
-              type="primary"
-              onClick={() => {
-                // Store username so EnableMFA can access it
-                localStorage.setItem(
-                  "resume-user",
-                  JSON.stringify({ username: registeredUsername })
-                );
-                navigate("/enable-mfa");
-              }}
-            >
-              ✅ Enable MFA
-            </Button>,
-          ]}
-        >
-          <p>
-            For enhanced security, we recommend enabling Two-Factor
-            Authentication (MFA). This adds an extra layer of protection to your
-            account by requiring a 6-digit code from an authenticator app in
-            addition to your password.
-          </p>
-        </Modal>
       </div>
     </div>
   );
