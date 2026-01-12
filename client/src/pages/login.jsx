@@ -6,11 +6,8 @@ import axios from "axios";
 
 function Login() {
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [lockoutTimer, setLockoutTimer] = useState(null);
   const [rateLimitTimer, setRateLimitTimer] = useState(null);
-  const [mfaRequired, setMfaRequired] = useState(false);
-  const [otp, setOtp] = useState("");
 
   const navigate = useNavigate();
 
@@ -22,7 +19,6 @@ function Login() {
         {
           username: values.username,
           password: values.password,
-          otp: mfaRequired ? otp : undefined,
         },
         { withCredentials: true }
       );
@@ -45,13 +41,8 @@ function Login() {
       }
 
       const status = error.response.status;
-      const errorMsg = error.response?.data?.message || "Login failed.";
-      setErrorMessage(errorMsg);
-
-      if (errorMsg === "OTP is required for MFA") {
-        setMfaRequired(true);
-        return;
-      }
+      const errorMsg =
+        error.response?.data?.message || "Login failed. Invalid credentials.";
 
       if (status === 403) {
         const timeMatch = errorMsg.match(/\d+/);
@@ -64,11 +55,12 @@ function Login() {
         const retrySeconds = parseInt(retryAfter, 10) || 120;
         setRateLimitTimer(retrySeconds);
       } else {
-        message.error("Login failed. Invalid credentials.");
+        message.error(errorMsg);
       }
     }
   };
 
+  // Countdown for account lockout
   useEffect(() => {
     if (lockoutTimer === null) return;
     const interval = setInterval(() => {
@@ -81,6 +73,7 @@ function Login() {
     return () => clearInterval(interval);
   }, [lockoutTimer]);
 
+  // Countdown for rate limit
   useEffect(() => {
     if (rateLimitTimer === null) return;
     const interval = setInterval(() => {
@@ -93,6 +86,7 @@ function Login() {
     return () => clearInterval(interval);
   }, [rateLimitTimer]);
 
+  // Redirect if already logged in
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("resume-user") || "{}");
     if (user?.username) {
@@ -106,6 +100,7 @@ function Login() {
     <div className="login-page">
       <div className="login-box">
         {loading && <Spin size="large" />}
+
         <Form name="login-form" onFinish={onFinish}>
           <p className="form-title">Welcome back</p>
           <p>Login to the Dashboard</p>
@@ -124,29 +119,17 @@ function Login() {
             <Input.Password placeholder="Password" disabled={isDisabled} />
           </Form.Item>
 
-          {mfaRequired && (
-            <Form.Item
-              name="otp"
-              rules={[{ required: true, message: "Please input your OTP!" }]}
-            >
-              <Input
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-            </Form.Item>
-          )}
-
           {lockoutTimer !== null && (
             <p className="error-text" style={{ color: "red" }}>
-              Account Locked. Try again in {Math.floor(lockoutTimer / 60)}:
+              Account locked. Try again in{" "}
+              {Math.floor(lockoutTimer / 60)}:
               {(lockoutTimer % 60).toString().padStart(2, "0")} minutes.
             </p>
           )}
 
           {rateLimitTimer !== null && (
             <p className="error-text" style={{ color: "red" }}>
-              Rate limit exceeded. Try again in{" "}
+              Too many attempts. Try again in{" "}
               {Math.floor(rateLimitTimer / 60)}:
               {(rateLimitTimer % 60).toString().padStart(2, "0")} minutes.
             </p>
