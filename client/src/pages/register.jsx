@@ -3,6 +3,7 @@ import "./../resources/authentication.css";
 import { Button, Checkbox, Form, Input, message, Spin } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Header from "../components/Header";
 
 function Register() {
   const [loading, setLoading] = useState(false);
@@ -16,14 +17,14 @@ function Register() {
         password: values.password,
       });
 
-      setLoading(false);
       message.success("Registration successful. Please login.");
       navigate("/login");
     } catch (error) {
-      setLoading(false);
       const errorMsg =
         error.response?.data?.message || "Registration failed";
       message.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,12 +34,15 @@ function Register() {
     }
   }, [navigate]);
 
-  return (
+ return (
     <div className="login-page">
       <div className="login-box">
         {loading && <Spin size="large" />}
-
-        <Form name="register-form" onFinish={onFinish}>
+        <Form
+          name="login-form"
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+        >
           <p className="form-title">Welcome</p>
           <p>Kindly Register and then Login to the Dashboard</p>
 
@@ -74,9 +78,7 @@ function Register() {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error("Passwords do not match!")
-                  );
+                  return Promise.reject(new Error("Passwords do not match!"));
                 },
               }),
             ]}
@@ -100,6 +102,11 @@ function Register() {
             <Link to="/login">Click here to Login</Link>
           </Form.Item>
         </Form>
+
+        
+        
+          
+        
       </div>
     </div>
   );

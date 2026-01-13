@@ -1,7 +1,7 @@
 // morganLogger.js
 require("dotenv").config();
 const winston = require("winston");
-require("winston-mongodb");
+// require("winston-mongodb");
 
 // Separate logger for Morgan's HTTP request logging
 const morganLogger = winston.createLogger({
@@ -15,12 +15,12 @@ const morganLogger = winston.createLogger({
     new winston.transports.File({ filename: "logs/http-morgan.log" }),
 
     // Log HTTP requests to a separate MongoDB collection
-    new winston.transports.MongoDB({
-      level: "http",
-      db: process.env.MONGODB_URI,
-      collection: "morgan_logs", // Separate collection for request logs
-      options: { useUnifiedTopology: true },
-    }),
+    // new winston.transports.MongoDB({
+    //   level: "http",
+    //   db: process.env.MONGODB_URI,
+    //   collection: "morgan_logs", // Separate collection for request logs
+    //   options: { useUnifiedTopology: true },
+    // }),
   ],
 });
 

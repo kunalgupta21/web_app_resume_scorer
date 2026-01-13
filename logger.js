@@ -1,7 +1,7 @@
 // logger.js
 require("dotenv").config();
 const winston = require("winston");
-require("winston-mongodb");
+// require("winston-mongodb");
 
 // 1. Define custom logging levels
 const levels = {
@@ -41,11 +41,11 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: "logs/combined.log" }),
 
     // Log to MongoDB (collection: logs)
-    new winston.transports.MongoDB({
-      level: "http", // store everything from http and up
-      db: process.env.MONGODB_URI,
-      collection: "logs",
-    }),
+    // new winston.transports.MongoDB({
+    //   level: "http", // store everything from http and up
+    //   db: process.env.MONGODB_URI,
+    //   collection: "logs",
+    // }),
 
     // Log to console with color and formatting
     new winston.transports.Console({

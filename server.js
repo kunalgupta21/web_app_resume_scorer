@@ -28,7 +28,7 @@ dbConnect();
 app.use(morgan("combined", { stream: morganStream }));
 
 /* -------------------- SECURITY MIDDLEWARE -------------------- */
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = ["http://localhost:3000","https://YOUR-VERCEL-APP.vercel.app"];
 
 app.use(
   helmet({
