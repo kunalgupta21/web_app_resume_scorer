@@ -4,7 +4,6 @@
 
 Resumaid is a secure and modern **MERN stack** web application that allows users to:
 
-- Create professional resumes using customizable templates
 - Upload their resumes in `.docx` format for **ATS (Applicant Tracking System)** analysis
 - View personalized feedback and score
 - Securely manage their profile with sensitive information encrypted in the database
@@ -24,7 +23,6 @@ Resumaid is a secure and modern **MERN stack** web application that allows users
 
 - Fill in resume data via profile sections (skills, education, projects, etc.)
 - Select templates for resume generation
-- Stored data is **encrypted** using AES-256-CBC before saving to the database
 
 ### ATS Scanner
 
@@ -36,20 +34,12 @@ Resumaid is a secure and modern **MERN stack** web application that allows users
 ### Profile Management
 
 - View and update personal information (email, phone, address, etc.)
-- Encrypted using **Node.js crypto module** with AES-256-CBC algorithm
 
 ### Logging & Monitoring
 
 - Activity and errors are logged securely using **Winston and Morgan**
 - Logs are stored in `logs/app.log` file for security audit and debugging
-
-### Dockerized Architecture
-
-- The entire application is containerized using Docker
-- Separate containers for backend, frontend, and MongoDB
-- Docker Compose used to manage multi-service setup
-
----
+---------
 
 ## Technologies Used
 
@@ -57,7 +47,6 @@ Resumaid is a secure and modern **MERN stack** web application that allows users
 - **Express.js** - Backend API
 - **React.js** - Frontend UI
 - **Node.js** - JavaScript runtime
-- **Docker & Docker Compose** - Containerized deployment
 - **bcryptjs** - Password hashing
 ---
 ## Installation (For Development)
