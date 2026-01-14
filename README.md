@@ -17,7 +17,6 @@ Resumaid is a secure and modern **MERN stack** web application that allows users
 - Register and login securely
 - Enforced **strong password policy** (uppercase, symbols, digits, min length 16)
 - Passwords are **hashed with bcrypt** using 12 salt rounds
-- Accounts are protected with **MFA (Multi-Factor Authentication)** using Google Authenticator
 
 ### Resume Builder
 
@@ -35,11 +34,6 @@ Resumaid is a secure and modern **MERN stack** web application that allows users
 
 - View and update personal information (email, phone, address, etc.)
 
-### Logging & Monitoring
-
-- Activity and errors are logged securely using **Winston and Morgan**
-- Logs are stored in `logs/app.log` file for security audit and debugging
----------
 
 ## Technologies Used
 
